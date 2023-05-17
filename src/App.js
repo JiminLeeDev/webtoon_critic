@@ -3,6 +3,7 @@ import Portrait from "./Portrait";
 import { useMediaQuery } from "react-responsive";
 import Tag from "./Tag";
 import Pagination from "./Pagination";
+import "./fonts.css";
 
 function App() {
   const isPc = useMediaQuery({
@@ -64,7 +65,7 @@ function App() {
   }, [reqOptions]);
 
   return (
-    <div style={{ padding: "5% 5%" }}>
+    <div style={{ padding: "5% 5%", fontFamily: "Happiness-Sans-Title" }}>
       <div>
         <div style={{ margin: "1% 0% 1% 0%" }}>
           {[
@@ -134,6 +135,7 @@ function App() {
           ))}
         </div>
       </div>
+
       <Pagination
         page={reqOptions.page + 1}
         pre_clickable={paginationClickable.pre}
@@ -149,22 +151,28 @@ function App() {
         }
       />
 
-      <p style={{ textAlign: "center", marginTop: "10%" }}>
-        Copyright 2023. Gym Lee. All rights reserved.
-      </p>
+      <div style={{ fontFamily: "sans-serif" }}>
+        <p style={{ textAlign: "center", marginTop: "10%" }}>
+          This page develop with "Happiness-Sans-Title" font.
+        </p>
 
-      <a
-        href="https://github.com/JiminLeeDev/webtoon_critic"
-        style={{
-          textAlign: "center",
-          marginTop: "2%",
-          textDecoration: "none",
-          color: "black",
-          display: "block",
-        }}
-      >
-        GitHub
-      </a>
+        <p style={{ textAlign: "center", marginTop: "2%" }}>
+          Copyright 2023. Gym Lee. All rights reserved.
+        </p>
+
+        <a
+          href="https://github.com/JiminLeeDev/webtoon_critic"
+          style={{
+            textAlign: "center",
+            marginTop: "2%",
+            textDecoration: "none",
+            color: "black",
+            display: "block",
+          }}
+        >
+          GitHub
+        </a>
+      </div>
     </div>
   );
 }

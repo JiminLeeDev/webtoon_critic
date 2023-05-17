@@ -1,0 +1,9 @@
+.tag {
+    display: inline-block;
+    margin: 0% 0.5%;
+    padding: 1% 1.5%;
+    border-radius: 25% 25%;
+    display: inline-block;
+    cursor: pointer;
+    background-color: lightpink;
+}

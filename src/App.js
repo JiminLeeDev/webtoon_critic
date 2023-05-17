@@ -13,7 +13,7 @@ function App() {
     query: "(min-width:800px) and (max-width:1200px)",
   });
   const isMobile = useMediaQuery({
-    query: "(max-width:800px)",
+    query: "(min-width:600px) and (max-width:800px)",
   });
 
   const [reqOptions, setReqOptions] = useState({
@@ -65,7 +65,13 @@ function App() {
   }, [reqOptions]);
 
   return (
-    <div style={{ padding: "5% 5%", fontFamily: "Happiness-Sans-Title" }}>
+    <div
+      style={{
+        padding: "5% 5%",
+        fontFamily: "Happiness-Sans-Title",
+        backgroundColor: "",
+      }}
+    >
       <div>
         <div style={{ margin: "1% 0% 1% 0%" }}>
           {[

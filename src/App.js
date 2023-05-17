@@ -42,7 +42,6 @@ function App() {
           pre: reqOptions.page > 0,
         });
 
-        console.log(reqOptions.page);
         if (res.webtoons.length < reqOptions.perPage) {
           setPaginationClickable({ ...paginationClickable, next: false });
 
@@ -135,18 +134,37 @@ function App() {
           ))}
         </div>
       </div>
-
       <Pagination
         page={reqOptions.page + 1}
         pre_clickable={paginationClickable.pre}
         next_clickable={paginationClickable.next}
         pre_click={() =>
-          setReqOptions({ ...reqOptions, page: reqOptions.page - 1 })
+          setReqOptions({
+            ...reqOptions,
+            page: reqOptions.page === 0 ? 0 : reqOptions.page - 1,
+          })
         }
         next_click={() =>
           setReqOptions({ ...reqOptions, page: reqOptions.page + 1 })
         }
       />
+
+      <p style={{ textAlign: "center", marginTop: "10%" }}>
+        Copyright 2023. Gym Lee. All rights reserved.
+      </p>
+
+      <a
+        href="https://github.com/JiminLeeDev/webtoon_critic"
+        style={{
+          textAlign: "center",
+          marginTop: "2%",
+          textDecoration: "none",
+          color: "black",
+          display: "block",
+        }}
+      >
+        GitHub
+      </a>
     </div>
   );
 }

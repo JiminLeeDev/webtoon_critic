@@ -20,7 +20,7 @@ function App() {
     day: "",
     service: "",
     page: 0,
-    perPage: 24,
+    perPage: 48,
   });
 
   const [paginationClickable, setPaginationClickable] = useState({
@@ -119,10 +119,8 @@ function App() {
           style={{
             display: "grid",
             gridTemplateColumns: `repeat(${
-              isPc ? 6 : isTablet ? 4 : isMobile ? 2 : 1
-            }, minmax(${
-              isPc ? "200px" : isTablet ? "200px" : isMobile ? "200px" : "200px"
-            }, 1fr))`,
+              isPc ? 8 : isTablet ? 6 : 4
+            }, minmax(${isPc ? "120px" : isTablet ? "110px" : "50px"}, 1fr))`,
           }}
         >
           {webtoons.map((webtoon) => (

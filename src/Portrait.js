@@ -1,6 +1,6 @@
-import kakao_icon from "./kakao_icon.png";
-import naver_icon from "./naver_icon.png";
-import kakao_page_icon from "./kakao_page_icon.png";
+import kakao_icon from "./icons/kakao_icon.png";
+import naver_icon from "./icons/naver_icon.png";
+import kakao_page_icon from "./icons/kakao_page_icon.png";
 import styles from "./portrait.module.css";
 
 function Portrait({ src, title, platform, update_day, address }) {

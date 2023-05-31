@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import Portrait from "./Portrait";
 import { useMediaQuery } from "react-responsive";
-import Tag from "./Tag";
 import Pagination from "./Pagination";
+import ToonListViwer from "./ToonListViewer";
+import Footer from "./Footer";
 import "./fonts.css";
+import SearchOptionList from "./SearchOptionList";
+import Header from "./Header";
 
 function App() {
   const isPc = useMediaQuery({
@@ -12,57 +14,116 @@ function App() {
   const isTablet = useMediaQuery({
     query: "(min-width:800px) and (max-width:1200px)",
   });
-  const isMobile = useMediaQuery({
-    query: "(min-width:600px) and (max-width:800px)",
-  });
 
   const [reqOptions, setReqOptions] = useState({
     day: "",
     service: "",
-    page: 0,
     perPage: 48,
+    adult: "",
+    free: "",
   });
 
-  const [paginationClickable, setPaginationClickable] = useState({
-    next: true,
-    pre: true,
-  });
+  const [page, setPage] = useState(0);
+  const [webtoonDatas, setWebttonDatas] = useState([]);
+  const [filteredWebtoons, setFilteredWebtoons] = useState([]);
+  const [webtoonPerPage, setWebtoonPerPage] = useState([]);
+  const [loaded, setloaded] = useState(false);
 
-  const reload = () => {
-    fetch(
-      `https://korea-webtoon-api.herokuapp.com/?perPage=${
-        reqOptions.perPage
-      }&page=${reqOptions.page}${
-        reqOptions.service !== "" ? `&service=${reqOptions.service}` : ""
-      }${reqOptions.day !== "" ? `&updateDay=${reqOptions.day}` : ""}`
-    )
+  const callApi = () => {
+    setloaded(false);
+
+    fetch(`https://korea-webtoon-api.herokuapp.com/`)
       .then((res) => res.json())
-      .then((res) => {
-        setPaginationClickable({
-          paginationClickable,
-          pre: reqOptions.page > 0,
-        });
+      .then((count_res) => {
+        fetch(
+          `https://korea-webtoon-api.herokuapp.com/?perPage=${
+            reqOptions.service === ""
+              ? count_res.totalWebtoonCount
+              : reqOptions.service === "naver"
+              ? count_res.naverWebtoonCount
+              : reqOptions.service === "kakao"
+              ? count_res.kakaoWebtoonCount
+              : count_res.kakaoPageWebtoonCount
+          }&${
+            reqOptions.service !== "" ? `&service=${reqOptions.service}` : ""
+          }&${reqOptions.day !== "" ? `&updateDay=${reqOptions.day}` : ""}`
+        )
+          .then((res) => res.json())
+          .then((res) => {
+            setWebttonDatas(res.webtoons);
 
-        if (res.webtoons.length < reqOptions.perPage) {
-          setPaginationClickable({ ...paginationClickable, next: false });
-
-          if (res.webtoons.length === 0) {
-            setReqOptions({ ...reqOptions, page: reqOptions.page - 1 });
-
-            return;
-          }
-        } else {
-          setPaginationClickable({ ...paginationClickable, next: true });
-        }
-
-        setWebtoons(res.webtoons);
+            setloaded(true);
+          });
       });
   };
-  const [webtoons, setWebtoons] = useState([]);
+
+  const fitlerWebtoons = () => {
+    if (webtoonDatas === undefined) {
+      setFilteredWebtoons([]);
+    } else {
+      setFilteredWebtoons(
+        webtoonDatas.filter((webtoonData) => {
+          let isFilterable = true;
+
+          if (reqOptions.adult !== "") {
+            if (reqOptions.adult !== webtoonData.additional.adult) {
+              isFilterable = false;
+            }
+          }
+
+          if (reqOptions.free !== "") {
+            if (
+              !webtoonData.additional.singularityList.includes(reqOptions.free)
+            ) {
+              isFilterable = false;
+            }
+          }
+
+          if (isFilterable) {
+            return webtoonData;
+          }
+        })
+      );
+    }
+  };
+
+  const divideWebtoonByPage = () => {
+    let idx = 0;
+    let webtoons = [];
+    let Pages = [];
+
+    filteredWebtoons.map((webtoon) => {
+      if (idx < reqOptions.perPage) {
+        webtoons.push(webtoon);
+        idx++;
+      } else {
+        Pages.push(webtoons);
+
+        webtoons = [];
+        idx = 0;
+      }
+    });
+
+    if (webtoons !== []) {
+      Pages.push(webtoons);
+    }
+
+    setWebtoonPerPage(Pages);
+  };
 
   useEffect(() => {
-    reload();
-  }, [reqOptions]);
+    callApi();
+  }, [reqOptions.day, reqOptions.service]);
+
+  useEffect(() => {
+    fitlerWebtoons();
+  }, [webtoonDatas, reqOptions.adult, reqOptions.free]);
+
+  useEffect(() => {
+    setPage(0);
+
+    divideWebtoonByPage();
+  }, [filteredWebtoons]);
 
   return (
     <div
@@ -72,111 +133,33 @@ function App() {
         backgroundColor: "",
       }}
     >
-      <div>
-        <div style={{ margin: "1% 0% 1% 0%" }}>
-          {[
-            { content: "월요일", setReqDay: "mon" },
-            { content: "화요일", setReqDay: "tue" },
-            { content: "수요일", setReqDay: "wed" },
-            { content: "목요일", setReqDay: "thu" },
-            { content: "금요일", setReqDay: "fri" },
-            { content: "토요일", setReqDay: "sat" },
-            { content: "일요일", setReqDay: "sun" },
-            { content: "모든 요일", setReqDay: "" },
-          ].map((dayTag) => (
-            <Tag
-              content={dayTag.content}
-              event={() =>
-                setReqOptions({ ...reqOptions, day: dayTag.setReqDay, page: 0 })
-              }
-              selected={reqOptions.day === dayTag.setReqDay}
-            />
-          ))}
-        </div>
+      <Header />
 
-        <div style={{ margin: "3% 0% 1% 0%" }}>
-          {[
-            { content: "네이버", setReqService: "naver" },
-            { content: "카카오", setReqService: "kakao" },
-            { content: "카카오페이지", setReqService: "kakaoPage" },
-            { content: "모든 플랫폼", setReqService: "" },
-          ].map((serviceTag) => (
-            <Tag
-              content={serviceTag.content}
-              event={() =>
-                setReqOptions({
-                  ...reqOptions,
-                  service: serviceTag.setReqService,
-                  page: 0,
-                })
-              }
-              selected={reqOptions.service === serviceTag.setReqService}
-            />
-          ))}
-        </div>
+      <div
+        style={{
+          opacity: loaded ? "1" : "0.35",
+          pointerEvents: loaded ? "initial" : "none",
+          userSelect: loaded ? "initial" : "none",
+        }}
+      >
+        <SearchOptionList reqOptionState={{ reqOptions, setReqOptions }} />
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: `repeat(${
-              isPc ? 8 : isTablet ? 6 : 4
-            }, minmax(${isPc ? "120px" : isTablet ? "110px" : "50px"}, 1fr))`,
-          }}
-        >
-          {webtoons.map((webtoon) => (
-            <div
-              style={{ position: "relative", margin: "5% 5%" }}
-              key={webtoon.webtoonId}
-            >
-              <Portrait
-                src={webtoon ? webtoon.img : ""}
-                title={webtoon.title}
-                platform={webtoon.service}
-                address={webtoon.url}
-                update_day={webtoon.updateDays}
-              />
-            </div>
-          ))}
-        </div>
+        <ToonListViwer
+          isPc={isPc}
+          isTablet={isTablet}
+          webtoons={webtoonPerPage.length === 0 ? [] : webtoonPerPage[page]}
+        />
+
+        <Pagination
+          page={page}
+          pre_clickable={page > 0}
+          next_clickable={webtoonPerPage.length > page + 1}
+          pre_click={() => setPage(page - 1)}
+          next_click={() => setPage(page + 1)}
+        />
       </div>
 
-      <Pagination
-        page={reqOptions.page + 1}
-        pre_clickable={paginationClickable.pre}
-        next_clickable={paginationClickable.next}
-        pre_click={() =>
-          setReqOptions({
-            ...reqOptions,
-            page: reqOptions.page === 0 ? 0 : reqOptions.page - 1,
-          })
-        }
-        next_click={() =>
-          setReqOptions({ ...reqOptions, page: reqOptions.page + 1 })
-        }
-      />
-
-      <div style={{ fontFamily: "sans-serif" }}>
-        <p style={{ textAlign: "center", marginTop: "10%" }}>
-          This page develop with "Happiness-Sans-Title" font.
-        </p>
-
-        <p style={{ textAlign: "center", marginTop: "2%" }}>
-          Copyright 2023. Gym Lee. All rights reserved.
-        </p>
-
-        <a
-          href="https://github.com/JiminLeeDev/webtoon_critic"
-          style={{
-            textAlign: "center",
-            marginTop: "2%",
-            textDecoration: "none",
-            color: "black",
-            display: "block",
-          }}
-        >
-          GitHub
-        </a>
-      </div>
+      <Footer />
     </div>
   );
 }

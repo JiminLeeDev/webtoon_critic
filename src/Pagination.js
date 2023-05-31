@@ -19,7 +19,7 @@ function Pagination({
       >
         {"<"}
       </span>
-      <span style={{ margin: "0% 1%" }}>{page}</span>
+      <span style={{ margin: "0% 1%" }}>{page + 1}</span>
       <span
         style={{
           backgroundColor: "lightgrey",
